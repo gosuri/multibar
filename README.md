@@ -1,4 +1,4 @@
-# MultiBar
+# multibar [![GoDoc](https://godoc.org/github.com/gosuri/multibar?status.svg)](https://godoc.org/github.com/gosuri/multibar) [![Build Status](https://travis-ci.org/gosuri/multibar.svg?branch=master)](https://travis-ci.org/gosuri/multibar)
 
 MultiBar is Go library to render multiple progress bars in the terminal. 
 

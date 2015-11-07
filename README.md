@@ -1,143 +1,55 @@
-## MultiBar
+# MultiBar
 
-Display progress bars in Go
+MultiBar is Go library to render multiple progress bars in the terminal. 
 
-    $ go run main.go
-    here we have a progress bar
+This is a fork of [sethgrid/multibar](https://github.com/sethgrid/multibar) with API and documentation improvements.
 
-    some work  30% [====================>-------------------------------------------] 925ms
-    and here we have another progress bar
-    here we have a longer prepend string  25% [==========>--------------------------] 911ms
-    working...  19% [=============>-------------------------------------------------] 911ms
+![example](docs/example.gif)
 
+## Example
 
-### Display Options:
-
-When you call ```.MakeBar(total int, prepend string)```, the returned progress bar
-has options that you can change to fit your needs. Here are the defaults:
-
-    - Width:           screen width - len(prepend) - 20
-    - Total:           total (passed in)
-    - Prepend:         prepend (passed in)
-    - LeftEnd:         '['
-    - RightEnd:        ']'
-    - Fill:            '='
-    - Head:            '>'
-    - Empty:           '-'
-    - ShowPercent:     true
-    - ShowTimeElapsed: true
-
-
-### Example usage:
-
-![example gif](http://share.gifyoutube.com/m2oE5J.gif)
-
-(note, in the example gif, we are manually resetting the terminal mode. We NO LONGER have to, issue fixed)
+The below example renders the progress bar like in the intro. 
 
 ```go
-    package main
+bars := multibar.New()
+count1, count2 := 2000, 2500
+bar1 := bars.MakeBar(count1, "bar1")
+bar2 := bars.MakeBar(count2, "bar2")
 
-    import (
-        "fmt"
-        "sync"
-        "time"
+bars.Start()
 
-        "github.com/sethgrid/multibar"
-    )
+var wg sync.WaitGroup
+wg.Add(1)
+go func() {
+  defer wg.Done()
+  for i := 0; i <= count1; i++ {
+    bars.Increment(bar1, i)
+    time.Sleep(time.Millisecond)
+  }
+}()
 
-    func main() {
-        // create the multibar container
-        // this allows our bars to work together without stomping on one another
-        progressBars, _ := multibar.New()
+wg.Add(1)
+go func() {
+  defer wg.Done()
+  for i := 0; i <= count2; i++ {
+    bars.Increment(bar2, i)
+    time.Sleep(time.Millisecond)
+  }
+}()
 
-        // some arbitrary totals for our  progress bars
-        // in practice, these could be file sizes or similar
-        mediumTotal, smallTotal, largerTotal := 150, 100, 200
+wg.Wait()
+```
 
-        // make some output for the screen
-        // the MakeBar(total, prependString) returns a method that you can pass progress into
-        progressBars.Println("Below are many progress bars.")
-        progressBars.Println("It is best to use the print wrappers to keep output synced up.")
-        progressBars.Println("We can switch back to normal fmt after our progress bars are done.\n")
+Full source for the below example is in [example/main.go](example/main.go). To run the example, get the source code and run:
 
-        // we will update the progress down below in the mock work section with barProgress1(int)
-        barProgress1 := progressBars.MakeBar(mediumTotal, "1st")
+```
+$ go run example/main.go
+```
 
-        progressBars.Println()
-        progressBars.Println("We can separate bars with blocks of text, or have them grouped.\n")
+## Installation
 
-        barProgress2 := progressBars.MakeBar(smallTotal, "2nd - with description:")
-        barProgress3 := progressBars.MakeBar(largerTotal, "3rd")
-        barProgress4 := progressBars.MakeBar(mediumTotal, "4th")
-        barProgress5 := progressBars.MakeBar(smallTotal, "5th")
-        barProgress6 := progressBars.MakeBar(largerTotal, "6th")
+Install the package using `go get`
 
-        progressBars.Println("And we can have blocks of text as we wait for progress bars to complete...")
-
-        // listen in for changes on the progress bars
-        // I should be able to move this into the constructor at some point
-        go progressBars.Listen()
-
-        /*
-
-            *** mock work ***
-            spawn some goroutines to do arbitrary work, updating their
-            respective progress bars as they see fit
-
-        */
-        wg := &sync.WaitGroup{}
-        wg.Add(6)
-        go func() {
-            // do something asyn that we can get updates upon
-            // every time an update comes in, tell the bar to re-draw
-            // this could be based on transferred bytes or similar
-            for i := 0; i <= mediumTotal; i++ {
-                barProgress1(i)
-                time.Sleep(time.Millisecond * 15)
-            }
-            wg.Done()
-        }()
-
-        go func() {
-            for i := 0; i <= smallTotal; i++ {
-                barProgress2(i)
-                time.Sleep(time.Millisecond * 25)
-            }
-            wg.Done()
-        }()
-
-        go func() {
-            for i := 0; i <= largerTotal; i++ {
-                barProgress3(i)
-                time.Sleep(time.Millisecond * 12)
-            }
-            wg.Done()
-        }()
-
-        go func() {
-            for i := 0; i <= mediumTotal; i++ {
-                barProgress4(i)
-                time.Sleep(time.Millisecond * 10)
-            }
-            wg.Done()
-        }()
-        go func() {
-            for i := 0; i <= smallTotal; i++ {
-                barProgress5(i)
-                time.Sleep(time.Millisecond * 20)
-            }
-            wg.Done()
-        }()
-        go func() {
-            for i := 0; i <= largerTotal; i++ {
-                barProgress6(i)
-                time.Sleep(time.Millisecond * 10)
-            }
-            wg.Done()
-        }()
-        wg.Wait()
-
-        // continue doing other work
-        fmt.Println("All Bars Complete")
-    }
+```
+go get -u github.com/gosuri/multibar
 ```

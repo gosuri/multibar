@@ -1,17 +1,19 @@
-package multibar_test
+package main
 
 import (
-	"github.com/gosuri/multibar"
 	"sync"
 	"time"
+
+	"github.com/gosuri/multibar"
 )
 
-func Example() {
+func main() {
 	bars := multibar.New()
 	count1, count2 := 2000, 2500
 	bar1 := bars.MakeBar(count1, "bar1")
 	bar2 := bars.MakeBar(count2, "bar2")
 
+	// Start listening for updates
 	bars.Start()
 
 	var wg sync.WaitGroup

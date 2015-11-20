@@ -1,5 +1,7 @@
 # multibar [![GoDoc](https://godoc.org/github.com/gosuri/multibar?status.svg)](https://godoc.org/github.com/gosuri/multibar) [![Build Status](https://travis-ci.org/gosuri/multibar.svg?branch=master)](https://travis-ci.org/gosuri/multibar)
 
+__Depricated__ in favor of [uiprogress](https://github.com/gosuri/uiprogress)
+
 MultiBar is Go library to render multiple progress bars in the terminal. 
 
 This is a fork of [sethgrid/multibar](https://github.com/sethgrid/multibar) with API and documentation improvements.
